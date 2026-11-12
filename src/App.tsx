@@ -18,6 +18,7 @@ import Chart from 'chart.js/auto';
 import * as XLSX from 'xlsx';
 import { Machine, InspectionRecord } from './types';
 import { DatabaseService } from './services/database';
+import { GoogleGenAI } from "@google/genai";
 
 const MACHINES: (Machine & { icon: any; badgeColor: string })[] = [
   { id: 1, name: 'เครื่องบรรจุ 1Kg No.1', color: '#ef4444', icon: Cpu, badgeColor: 'bg-red-50 text-red-600 border-red-200' },
@@ -255,20 +256,36 @@ export default function App() {
     setAiAnalysis(null);
     try {
       const machineRecs = records.filter(r => r.machine === activeMachineObj.name);
-      const res = await fetch("/api/predict-maintenance", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ machineName: activeMachineObj.name, records: machineRecs })
+      
+      // เรียกใช้คีย์จาก GitHub Secrets หรือใช้คีย์ที่ระบุไว้โดยตรง
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "AQ.Ab8RN6K9YlBFxY9pSdxIIXcOzw9zU3LcAwpGtiwH3o9iJyRmMQ";
+      const ai = new GoogleGenAI({ apiKey });
+
+      const prompt = `You are an expert industrial maintenance AI engineer for 1Kg packaging machines.
+Analyze the following inspection history records for machine "${activeMachineObj.name}":
+${JSON.stringify(machineRecs, null, 2)}
+
+Provide a concise, professional engineering diagnosis in Thai language with:
+1. Overall Machine Health Assessment (สถานะเครื่องจักรโดยรวม)
+2. Temperature & Speed Trend Analysis (วิเคราะห์แนวโน้มอุณหภูมิและความเร็ว)
+3. Predictive Maintenance Recommendations (คำแนะนำการบำรุงรักษาเชิงพยากรณ์ว่าควรตรวจสอบชิ้นส่วนใดและเมื่อใด)
+
+Keep the response structured, clear, and actionable.`;
+
+      const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: prompt,
       });
-      const data = await res.json();
-      if (data.success) {
-        setAiAnalysis(data.analysis);
+
+      if (response.text) {
+        setAiAnalysis(response.text);
         showToast('วิเคราะห์ AI สำเร็จ ✔');
       } else {
         showToast('เกิดข้อผิดพลาดในการเรียก AI');
       }
-    } catch {
-      showToast('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ AI ได้');
+    } catch (error) {
+      console.error("AI Error:", error);
+      showToast('ไม่สามารถเชื่อมต่อระบบ AI ได้ (โปรดตรวจสอบ API Key)');
     } finally {
       setLoadingAi(false);
     }
