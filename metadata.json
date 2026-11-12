@@ -1,0 +1,6 @@
+{
+  "name": "OEE Packing Pro",
+  "description": "OEE Performance, Machine Speed & Temperature Quality Inspection System for Packaging Department",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+  <title>AM Packing X — Next-Gen Inspection Deck</title>
+
+  <meta name="apple-mobile-web-app-title" content="AM Packing X">
+  <meta name="application-name" content="AM Packing X">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#090d16" id="metaThemeColor">
+
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Typography & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Sarabun:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Ambient Glow Effects -->
+  <div class="mesh-glow mesh-1"></div>
+  <div class="mesh-glow mesh-2"></div>
+  <div class="mesh-glow mesh-3"></div>
+
+  <div class="app-wrapper">
+    <!-- Top Modern Navigation Bar -->
+    <header class="main-navbar">
+      <div class="nav-container">
+        <div class="brand-zone">
+          <div class="brand-hexagon">
+            <i class="fa-solid fa-shapes"></i>
+          </div>
+          <div class="brand-meta">
+            <div class="brand-title-row">
+              <h1>AM PACKING <span class="badge-x">X</span></h1>
+              <span class="live-tag"><span class="live-dot"></span> REALTIME</span>
+            </div>
+            <p>1Kg Machine Autonomous Maintenance</p>
+          </div>
+        </div>
+
+        <!-- Desktop Navigation Deck -->
+        <nav class="desktop-dock">
+          <button class="dock-btn active" data-view="form">
+            <i class="fa-solid fa-file-signature"></i>
+            <span>บันทึกตรวจเช็ค</span>
+          </button>
+          <button class="dock-btn" data-view="history">
+            <i class="fa-solid fa-timeline"></i>
+            <span>ประวัติผลตรวจ</span>
+            <span class="dock-counter" id="deskTodayBadge">0</span>
+          </button>
+          <button class="dock-btn" data-view="dashboard">
+            <i class="fa-solid fa-chart-mixed"></i>
+            <span>แดชบอร์ดสถิติ</span>
+          </button>
+        </nav>
+
+        <!-- Right Quick Control Deck -->
+        <div class="control-deck">
+          <button class="control-btn" id="themeToggleBtn" title="สลับ Dark/Light">
+            <i class="fa-solid fa-sun" id="themeIcon"></i>
+          </button>
+          <div class="time-chip" id="clock">—</div>
+        </div>
+      </div>
+    </header>
+
+    
+    <!-- View 1: SMART DATA ENTRY (บันทึกข้อมูล) -->
+<main class="deck-view active" id="view-form">
+  <div class="view-header-strip">
+    <div class="strip-left">
+      <h2 id="formTitle">กรอกบันทึกจุดตรวจ</h2>
+      <span class="active-machine-badge" id="formMachineTag">No.1</span>
+    </div>
+    <div class="strip-right">
+      <span class="datetime-pill" id="f_datetime_view">—</span>
+    </div>
+  </div>
+
+  <form id="entryForm" class="modern-form-grid">
+    <!-- Section 1: เครื่องจักร, กะ & ข้อมูลผู้ตรวจสอบ -->
+    <div class="smart-card">
+      <div class="card-eyebrow"><i class="fa-solid fa-user-astronaut"></i> Shift & Operator</div>
+      
+      <div class="form-flow">
+        <!-- ย้ายแถบเลือกเครื่องจักรมาไว้ตรงนี้ -->
+        <div class="input-cell">
+          <label><i class="fa-solid fa-industry"></i> เลือกเครื่องจักร (Machine) <span class="star">*</span></label>
+          <div class="machine-select-grid" id="mScroller"></div>
+        </div>
+
+        <div class="input-cell">
+          <label>กะการทำงาน (Shift)</label>
+          <div class="shift-selector">
+            <label><input type="radio" name="f_shift" value="A" checked><span>กะ A</span></label>
+            <label><input type="radio" name="f_shift" value="B"><span>กะ B</span></label>
+            <label><input type="radio" name="f_shift" value="C"><span>กะ C</span></label>
+          </div>
+        </div>
+
+        <div class="input-cell">
+          <label for="f_operator">ผู้ตรวจสอบ (Inspector) <span class="star">*</span></label>
+          <div class="input-wrap icon-left">
+            <i class="fa-solid fa-user-shield field-icon"></i>
+            <select id="f_operator" required>
+              <option value="">-- เลือกรายชื่อผู้ตรวจ --</option>
+              <option value="นายอนิวัฒน์  ทองลาด">นายอนิวัฒน์  ทองลาด</option>
+              <option value="นายประจักร์  น้อยมูล">นายประจักร์  น้อยมูล</option>
+              <option value="นายภานุพงค์  นามวิเศษ">นายภานุพงค์  นามวิเศษ</option>
+              <option value="นายวัชรากร  ขวัญเฉลิม">นายวัชรากร  ขวัญเฉลิม</option>
+              <option value="นายกิตติภัส  สีสังชุม">นายกิตติภัส  สีสังชุม</option>
+              <option value="นายมงคล  ติวสร้อย">นายมงคล  ติวสร้อย</option>
+              <option value="นายอำนาจ  ทิพย์โพธิ์ศรี">นายอำนาจ  ทิพย์โพธิ์ศรี</option>
+              <option value="นายอดิศักดิ์  มณีจันทร์">นายอดิศักดิ์  มณีจันทร์</option>
+              <option value="นายปริวัฒน์  ทองมูล">นายปริวัฒน์  ทองมูล</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="input-cell">
+          <label for="f_speed">ความเร็วบรรจุ Speed (bag/min) <span class="star">*</span></label>
+          <div class="input-wrap icon-left">
+            <i class="fa-solid fa-gauge-high field-icon"></i>
+            <input type="number" step="0.1" id="f_speed" placeholder="ระบุตัวเลขความเร็ว" required>
+          </div>
+        </div>
+      </div>
+    </div>
+
+        <!-- Section 2: พารามิเตอร์อุณหภูมิและความร้อน -->
+        <div class="smart-card">
+          <div class="card-eyebrow"><i class="fa-solid fa-fire-flame-curved"></i> Thermal & Time Parameters</div>
+
+          <div class="no1-spec-dropdown" id="no1GroupSelector" style="display:none;">
+            <label>⚙️ เลือกลักษณะสเปคอุณหภูมิ No.1</label>
+            <select id="f_no1_group_select">
+              <option value="group1">กลุ่ม 1 (มาตรฐาน: 175-210 / 175-210)</option>
+              <option value="group2">กลุ่ม 2 (ความร้อนสูง: 170-190 / 170-185)</option>
+            </select>
+          </div>
+
+          <div class="param-cards-deck">
+            <!-- ซีลหน้า / บน -->
+            <div class="param-box">
+              <div class="param-banner">
+                <span id="lbl_temp_front">🌡️ ซีลหน้า (°C)</span>
+                <span class="status-indicator-tag" id="live_temp_front">—</span>
+              </div>
+              <input type="number" step="0.1" id="f_temp_front" placeholder="ป้อนค่าอุณหภูมิ" required>
+              <div class="spec-limits">
+                <span>Min: <input type="number" step="0.1" id="f_temp_front_min" readonly></span>
+                <span>Max: <input type="number" step="0.1" id="f_temp_front_max" readonly></span>
+              </div>
+            </div>
+
+            <!-- ซีลหลัง / ล่าง -->
+            <div class="param-box">
+              <div class="param-banner">
+                <span id="lbl_temp_back">🌡️ ซีลหลัง (°C)</span>
+                <span class="status-indicator-tag" id="live_temp_back">—</span>
+              </div>
+              <input type="number" step="0.1" id="f_temp_back" placeholder="ป้อนค่าอุณหภูมิ" required>
+              <div class="spec-limits">
+                <span>Min: <input type="number" step="0.1" id="f_temp_back_min" readonly></span>
+                <span>Max: <input type="number" step="0.1" id="f_temp_back_max" readonly></span>
+              </div>
+            </div>
+
+            <!-- ซีลกลาง -->
+            <div class="param-box">
+              <div class="param-banner">
+                <span>🌡️ ซีลกลาง (°C)</span>
+                <span class="status-indicator-tag" id="live_temp_mid">—</span>
+              </div>
+              <input type="number" step="0.1" id="f_temp_mid" placeholder="ป้อนค่าอุณหภูมิ" required>
+              <div class="spec-limits">
+                <span>Min: <input type="number" step="0.1" id="f_temp_mid_min" readonly></span>
+                <span>Max: <input type="number" step="0.1" id="f_temp_mid_max" readonly></span>
+              </div>
+            </div>
+
+            <!-- แช่จอหน้า-หลัง -->
+            <div class="param-box" id="row_time_frontback">
+              <div class="param-banner">
+                <span>⏱️ แช่จอหน้า-หลัง (ms)</span>
+                <span class="status-indicator-tag" id="live_time_frontback">—</span>
+              </div>
+              <input type="text" id="f_time_frontback" placeholder="เช่น 120-360">
+              <div class="spec-limits">
+                <span>Min: <input type="number" step="1" id="f_time_frontback_min" readonly></span>
+                <span>Max: <input type="number" step="1" id="f_time_frontback_max" readonly></span>
+              </div>
+            </div>
+
+            <!-- แช่จอกลาง -->
+            <div class="param-box" id="row_time_mid">
+              <div class="param-banner">
+                <span>⏱️ แช่จอกลาง (ms)</span>
+                <span class="status-indicator-tag" id="live_time_mid">—</span>
+              </div>
+              <input type="text" id="f_time_mid" placeholder="เช่น 120-360">
+              <div class="spec-limits">
+                <span>Min: <input type="number" step="1" id="f_time_mid_min" readonly></span>
+                <span>Max: <input type="number" step="1" id="f_time_mid_max" readonly></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: ตรวจสอบถุงบรรจุ & คุณภาพ -->
+        <div class="smart-card">
+          <div class="card-eyebrow"><i class="fa-solid fa-list-check"></i> Quality & Package Verification</div>
+          
+          <div class="qc-tile-group">
+            <div class="qc-tile">
+              <div class="qc-label">🏷️ Lot No.</div>
+              <div class="state-toggle" id="seg_lot">
+                <button type="button" data-val="pass">ผ่าน</button>
+                <button type="button" data-val="fail">ไม่ผ่าน</button>
+              </div>
+            </div>
+
+            <div class="qc-tile">
+              <div class="qc-label">🛠️ เทปล่อน</div>
+              <div class="state-toggle" id="seg_teflon">
+                <button type="button" data-val="pass">ผ่าน</button>
+                <button type="button" data-val="fail">ไม่ผ่าน</button>
+              </div>
+            </div>
+
+            <div class="qc-tile">
+              <div class="qc-label">📦 Seal (บน)</div>
+              <div class="state-toggle" id="seg_packseal_top">
+                <button type="button" data-val="pass">ผ่าน</button>
+                <button type="button" data-val="fail">ไม่ผ่าน</button>
+              </div>
+            </div>
+
+            <div class="qc-tile">
+              <div class="qc-label">📦 Seal (กลาง)</div>
+              <div class="state-toggle" id="seg_packseal_mid">
+                <button type="button" data-val="pass">ผ่าน</button>
+                <button type="button" data-val="fail">ไม่ผ่าน</button>
+              </div>
+            </div>
+
+            <div class="qc-tile">
+              <div class="qc-label">📦 Seal (ล่าง)</div>
+              <div class="state-toggle" id="seg_packseal_bot">
+                <button type="button" data-val="pass">ผ่าน</button>
+                <button type="button" data-val="fail">ไม่ผ่าน</button>
+              </div>
+            </div>
+
+            <div class="qc-tile">
+              <div class="qc-label">🎯 ตำแหน่งรูเข็ม</div>
+              <div class="state-toggle" id="seg_hole">
+                <button type="button" data-val="pass">ผ่าน</button>
+                <button type="button" data-val="fail">ไม่ผ่าน</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="input-cell" style="margin-top: 16px;">
+            <label for="f_notes">📝 ข้อสังเกต / อาการผิดปกติ (Notes)</label>
+            <textarea id="f_notes" rows="2" placeholder="ใส่รายละเอียดเพิ่มเติมหากพบความผิดปกติ..."></textarea>
+          </div>
+        </div>
+
+        <!-- Form Submission Floating Bar -->
+        <div class="form-action-strip">
+          <button type="button" class="btn-neo secondary" id="resetBtn">
+            <i class="fa-solid fa-arrow-rotate-left"></i> ล้างค่า
+          </button>
+          <button type="submit" class="btn-neo primary" id="submitBtn">
+            <i class="fa-solid fa-floppy-disk"></i> บันทึกข้อมูลขึ้นชีต
+          </button>
+        </div>
+      </form>
+    </main>
+
+    <!-- ==========================================
+         TAB 2: LOG HISTORY (ประวัติการตรวจ)
+         ========================================== -->
+    <main class="deck-view" id="view-history">
+      <!-- Metric Counters Strip -->
+      <section class="metric-hud" id="summary"></section>
+
+      <!-- Advanced Filter Deck -->
+      <section class="filter-deck">
+        <div class="filter-inputs">
+          <div class="filter-col">
+            <label><i class="fa-regular fa-calendar-days"></i> วันที่ตรวจสอบ</label>
+            <input type="date" id="filterDate">
+          </div>
+          <div class="filter-col">
+            <label><i class="fa-solid fa-filter-circle-check"></i> ผลการประเมิน</label>
+            <select id="filterResult">
+              <option value="all">ทั้งหมด (All Records)</option>
+              <option value="pass">ผ่านเกณฑ์สมบูรณ์ (Passed)</option>
+              <option value="fail">พบจุดหลุดสเปค (Defected)</option>
+            </select>
+          </div>
+          <div class="filter-col">
+            <label><i class="fa-solid fa-gear"></i> เครื่องบรรจุ</label>
+            <select id="filterMachine"><option value="all">ทุกเครื่องจักร</option></select>
+          </div>
+        </div>
+
+        <div class="filter-action-dock">
+          <button type="button" class="dock-action-btn" id="refreshBtn" title="ดึงข้อมูลล่าสุดจาก Sheet">
+            <i class="fa-solid fa-rotate"></i>
+          </button>
+          <button type="button" class="dock-action-btn excel-btn" id="exportBtn" title="ส่งออกเป็น Excel">
+            <i class="fa-solid fa-file-spreadsheet"></i>
+          </button>
+        </div>
+      </section>
+
+      <!-- Inspection Cards Feed -->
+      <div class="cards-feed-grid" id="recList"></div>
+      
+      <div class="deck-empty" id="emptyState" style="display:none;">
+        <i class="fa-solid fa-box-open empty-symbol"></i>
+        <h3>ไม่พบประวัติการตรวจเช็ค</h3>
+        <p>ยังไม่มีข้อมูลบันทึกที่ตรงตามเงื่อนไขตัวกรองของคุณ</p>
+      </div>
+    </main>
+
+    <!-- ==========================================
+         TAB 3: PREDICTIVE DASHBOARD (แดชบอร์ด)
+         ========================================== -->
+    <main class="deck-view" id="view-dashboard">
+      <div class="analytics-deck" id="dashContent"></div>
+    </main>
+
+    <!-- Mobile Ergonomic Bottom Tabbar -->
+    <nav class="mobile-tabbar">
+      <button class="tab-item active" data-view="form">
+        <i class="fa-solid fa-pen-nib"></i>
+        <span>บันทึกตรวจ</span>
+      </button>
+      <button class="tab-item" data-view="history">
+        <div class="badge-anchor">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+          <span class="bubble-badge" id="todayBadge" style="display:none;">0</span>
+        </div>
+        <span>ประวัติผล</span>
+      </button>
+      <button class="tab-item" data-view="dashboard">
+        <i class="fa-solid fa-chart-line-up"></i>
+        <span>แดชบอร์ด</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Notification Toast & Modal -->
+  <div class="modern-toast" id="toast"></div>
+
+  <div class="modern-modal-layer" id="successModal">
+    <div class="modal-surface">
+      <div class="modal-glow-check"><i class="fa-solid fa-check"></i></div>
+      <h3>บันทึกข้อมูลสำเร็จ</h3>
+      <p id="modalDesc">ระบบได้ทำการซิงค์บันทึกข้อมูลเรียบร้อยแล้ว</p>
+      <button class="btn-neo primary modal-confirm-btn" id="closeModalBtn">เรียบร้อย</button>
+    </div>
+  </div>
+
+  <script src="database.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
